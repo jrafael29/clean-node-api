@@ -2,7 +2,8 @@
 class SignUpController{
     perform (httpRequest: any): any {
         return {
-            statusCode: 400
+            statusCode: 400,
+            body: new Error('Missing param: name')
         }
     }
 }
@@ -21,5 +22,7 @@ describe('SignUp Controller', () => {
         const httpResponse = sut.perform(httpRequest)
 
         expect(httpResponse.statusCode).toBe(400)
+        expect(httpResponse.body).toEqual(new Error('Missing param: name'))
+
     })
 })
