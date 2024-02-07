@@ -1,11 +1,16 @@
+import { AccountModel } from '../../domain/models/account'
+import { AddAccount, AddAccountModel } from '../../domain/usecases/add-account'
 import {MissingParamError, ServerError, InvalidParamError} from '../errors'
 import {badRequest, serverError} from '../helpers/http-helper'
 import {Controller, EmailValidator, HttpRequest, HttpResponse} from '../protocols'
 
 class SignUpController implements Controller{
     private readonly emailValidator: EmailValidator
-    constructor(emailValidator: EmailValidator){
+    private readonly addAccount: AddAccount
+
+    constructor(emailValidator: EmailValidator, addAccount: AddAccount){
         this.emailValidator = emailValidator
+        this.addAccount = addAccount
     }
     perform (httpRequest: HttpRequest): HttpResponse {
         try{
@@ -15,16 +20,19 @@ class SignUpController implements Controller{
                     return badRequest(new MissingParamError(field))
                 }
             }
-            const {email, password, passwordConfirmation} = httpRequest.body;
+            const {name, email, password, passwordConfirmation} = httpRequest.body;
             if(password !== passwordConfirmation){
                 return badRequest(new InvalidParamError('passwordConfirmation'));
             }
-
             const emailIsValid = this.emailValidator.isValid(email)
-    
             if(!emailIsValid){
                 return badRequest(new InvalidParamError('email'))
             }
+            this.addAccount.add({
+                name,
+                email,
+                password
+            })
         }catch(error){
             return serverError();
         }
@@ -33,9 +41,11 @@ class SignUpController implements Controller{
 }
 
 interface SutTypes {
-    sut: SignUpController,
+    sut: SignUpController
     emailValidatorStub: EmailValidator
+    addAccountStub: AddAccount
 }
+
 
 const makeEmailValidator = (): EmailValidator => {
     class EmailValidatorStub implements EmailValidator {
@@ -45,12 +55,29 @@ const makeEmailValidator = (): EmailValidator => {
     }
     return new EmailValidatorStub();
 }
+const makeAddAccount = (): AddAccount => {
+    class AddAccountStub implements AddAccount {
+        add(account: AddAccountModel): AccountModel {
+            const fakeAccount = {
+                id: "valid_id",
+                name: "valid_name",
+                email: "valid_email@mail.com",
+                password: "valid_password"
+            }
+            return fakeAccount;
+        }
+    }
+    return new AddAccountStub();
+}
+
 const makeSut = (): SutTypes => {
     const emailValidatorStub = makeEmailValidator()
-    const sut = new SignUpController(emailValidatorStub)
+    const addAccountStub = makeAddAccount()
+    const sut = new SignUpController(emailValidatorStub, addAccountStub)
     return {
         sut,
-        emailValidatorStub
+        emailValidatorStub,
+        addAccountStub
     }
 }
 
@@ -193,6 +220,29 @@ describe('SignUp Controller', () => {
 
         expect(httpResponse.statusCode).toBe(500)
         expect(httpResponse.body).toEqual(new ServerError())
+
+    })
+
+    test('should call AddAccount with correct values', () => {
+        const { sut, addAccountStub } = makeSut()
+        const addSpy = jest.spyOn(addAccountStub, 'add')
+
+        const httpRequest = {
+            body: {
+                name: "any_name",
+                email: "any_email@mail.com",
+                password: "any_pass",
+                passwordConfirmation: 'any_pass'
+            }
+        }
+
+        sut.perform(httpRequest)
+
+        expect(addSpy).toHaveBeenCalledWith({
+            name: "any_name",
+            email: "any_email@mail.com",
+            password: "any_pass",
+        })
 
     })
 })
