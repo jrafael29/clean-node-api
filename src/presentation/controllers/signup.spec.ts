@@ -15,6 +15,11 @@ class SignUpController implements Controller{
                     return badRequest(new MissingParamError(field))
                 }
             }
+
+            if(httpRequest.body.password !== httpRequest.body.passwordConfirmation){
+                return badRequest(new InvalidParamError('passwordConfirmation'));
+            }
+
             const emailIsValid = this.emailValidator.isValid(httpRequest.body.email)
     
             if(!emailIsValid){
@@ -112,6 +117,23 @@ describe('SignUp Controller', () => {
 
         expect(httpResponse.statusCode).toBe(400)
         expect(httpResponse.body).toEqual(new MissingParamError('passwordConfirmation'))
+
+    })
+
+    test('should return 400 if password confirmations fails', () => {
+        const httpRequest = {
+            body: {
+                name: "any_name",
+                email: "any_pass",
+                password: "any_pass",
+                passwordConfirmation: "invalid_password"
+            }
+        }
+        const {sut} = makeSut()
+        const httpResponse = sut.perform(httpRequest)
+
+        expect(httpResponse.statusCode).toBe(400)
+        expect(httpResponse.body).toEqual(new InvalidParamError('passwordConfirmation'))
 
     })
 
