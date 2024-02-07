@@ -199,7 +199,7 @@ describe('SignUp Controller', () => {
 
     })
 
-    test('should return 500 if email validator throws', () => {
+    test('should return 500 if EmailValidator throws', () => {
 
         const {sut, emailValidatorStub} = makeSut()
         jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
@@ -241,6 +241,28 @@ describe('SignUp Controller', () => {
             email: "any_email@mail.com",
             password: "any_pass",
         })
+
+    })
+
+    test('should return 500 if AddAccount throws', () => {
+
+        const {sut, addAccountStub} = makeSut()
+        jest.spyOn(addAccountStub, 'add').mockImplementationOnce(() => {
+            throw new Error()
+        })
+
+        const httpRequest = {
+            body: {
+                name: "any_name",
+                email: "invalid_email@mail.com",
+                password: "any_pass",
+                passwordConfirmation: 'any_pass'
+            }
+        }
+        const httpResponse = sut.perform(httpRequest)
+
+        expect(httpResponse.statusCode).toBe(500)
+        expect(httpResponse.body).toEqual(new ServerError())
 
     })
 })
