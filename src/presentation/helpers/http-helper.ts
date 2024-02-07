@@ -1,4 +1,3 @@
-import { MissingParamError } from "../errors/missing-param-error"
 import { ServerError } from "../errors/server-error"
 import { HttpResponse } from "../protocols/http"
 
@@ -19,6 +18,13 @@ export const serverError = (): HttpResponse => {
 export const ok = (data: any): HttpResponse => {
     return {
         statusCode: 200,
+        body: data
+    }
+}
+
+const created = (data: any): HttpResponse => {
+    return {
+        statusCode: 201,
         body: data
     }
 }

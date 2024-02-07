@@ -10,7 +10,7 @@ export class SignUpController implements Controller{
         this.emailValidator = emailValidator
         this.addAccount = addAccount
     }
-    async perform (httpRequest: HttpRequest): Promise<HttpResponse> {
+    async handle (httpRequest: HttpRequest): Promise<HttpResponse> {
         try{
             const requiredFields = ['name', 'email', 'password', 'passwordConfirmation'];
             for(const field of requiredFields){
