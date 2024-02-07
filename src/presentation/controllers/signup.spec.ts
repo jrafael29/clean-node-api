@@ -4,7 +4,7 @@ import {badRequest} from '../helpers/http-helper'
 
 class SignUpController{
     perform (httpRequest: HttpRequest): HttpResponse {
-        const requiredFields = ['name', 'email', 'password'];
+        const requiredFields = ['name', 'email', 'password', 'passwordConfirmation'];
         for(const field of requiredFields){
             if(!httpRequest.body[field]){
                 return badRequest(new MissingParamError(field))
@@ -59,6 +59,22 @@ describe('SignUp Controller', () => {
 
         expect(httpResponse.statusCode).toBe(400)
         expect(httpResponse.body).toEqual(new MissingParamError('password'))
+
+    })
+
+    test('should return 400 if no passwordConfirmation is provided', () => {
+        const httpRequest = {
+            body: {
+                name: "any_name",
+                email: "any_pass",
+                password: "any_pass"
+            }
+        }
+        const sut = new SignUpController()
+        const httpResponse = sut.perform(httpRequest)
+
+        expect(httpResponse.statusCode).toBe(400)
+        expect(httpResponse.body).toEqual(new MissingParamError('passwordConfirmation'))
 
     })
 })
