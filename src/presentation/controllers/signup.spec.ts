@@ -14,7 +14,12 @@ class SignUpController implements Controller{
     }
 }
 
+const makeSut = (): SignUpController => {
+    return new SignUpController()
+}
+
 describe('SignUp Controller', () => {
+    
     test('should return 400 if no name is provided', () => {
         const httpRequest = {
             body: {
@@ -23,7 +28,7 @@ describe('SignUp Controller', () => {
                 passwordConfirmation: "any_pass"
             }
         }
-        const sut = new SignUpController()
+        const sut = makeSut()
         const httpResponse = sut.perform(httpRequest)
 
         expect(httpResponse.statusCode).toBe(400)
@@ -39,7 +44,7 @@ describe('SignUp Controller', () => {
                 passwordConfirmation: "any_pass"
             }
         }
-        const sut = new SignUpController()
+        const sut = makeSut()
         const httpResponse = sut.perform(httpRequest)
 
         expect(httpResponse.statusCode).toBe(400)
@@ -55,7 +60,7 @@ describe('SignUp Controller', () => {
                 passwordConfirmation: "any_pass"
             }
         }
-        const sut = new SignUpController()
+        const sut = makeSut()
         const httpResponse = sut.perform(httpRequest)
 
         expect(httpResponse.statusCode).toBe(400)
@@ -71,7 +76,7 @@ describe('SignUp Controller', () => {
                 password: "any_pass"
             }
         }
-        const sut = new SignUpController()
+        const sut = makeSut()
         const httpResponse = sut.perform(httpRequest)
 
         expect(httpResponse.statusCode).toBe(400)
