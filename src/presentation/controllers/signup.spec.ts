@@ -1,6 +1,6 @@
-
+import {httpRequest,httpResponse} from '../protocols/http'
 class SignUpController{
-    perform (httpRequest: any): any {
+    perform (httpRequest: httpRequest): httpResponse {
 
         if(!httpRequest.body.name){
             return {
