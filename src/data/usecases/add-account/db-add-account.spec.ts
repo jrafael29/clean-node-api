@@ -1,15 +1,6 @@
-import { AccountModel } from "../../../domain/models/account";
-import { AddAccount, AddAccountModel } from "../../../domain/usecases/add-account";
-import { Encrypter } from "../../protocols/encrypter";
+import { AddAccount, Encrypter} from './db-add-account-protocols'
+import {DbAddAccount} from './db-add-account'
 
-
-class DbAddAccount implements AddAccount {
-    constructor(private readonly encrypter: Encrypter){}
-    async add(account: AddAccountModel): Promise<AccountModel> {
-        const result = await this.encrypter.encrypt(account.password)
-        return new Promise(async resolve => resolve(null))
-    }
-}
 
 type SutTypes = {
     sut: AddAccount,
