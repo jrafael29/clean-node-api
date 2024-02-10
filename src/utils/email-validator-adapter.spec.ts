@@ -1,5 +1,5 @@
 import validator from 'validator'
-import { EmailValidatorAdapter } from "./EmailValidatorAdapter";
+import { EmailValidatorAdapter } from "./email-validator-adapter";
 
 const makeSut = (): EmailValidatorAdapter => {
     return new EmailValidatorAdapter();
