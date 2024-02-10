@@ -3,11 +3,7 @@ import { AddAccount, AddAccountModel } from "../../../domain/usecases/add-accoun
 import { Encrypter } from "../../protocols/encrypter";
 
 
-class EncrypterStub implements Encrypter {
-    async encrypt(value: string): Promise<string> {
-        return new Promise(resolve => resolve("hashed-string"))
-    }
-}
+
 
 class DbAddAccount implements AddAccount {
     constructor(private readonly encrypter: Encrypter){
@@ -24,10 +20,18 @@ type SutTypes = {
     encrypterStub: Encrypter
 }
 
-const makeSut = (): SutTypes => {
-    const encrypterStub = new EncrypterStub();
-    const sut = new DbAddAccount(encrypterStub);
+const makeEncrypter = (): Encrypter => {
+    class EncrypterStub implements Encrypter {
+        async encrypt(value: string): Promise<string> {
+            return new Promise(resolve => resolve("hashed-string"))
+        }
+    }
+    return new EncrypterStub()
+}
 
+const makeSut = (): SutTypes => {
+    const encrypterStub = makeEncrypter();
+    const sut = new DbAddAccount(encrypterStub);
     return {
         sut,
         encrypterStub
