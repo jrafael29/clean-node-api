@@ -19,10 +19,25 @@ class DbAddAccount implements AddAccount {
     }
 }
 
+type SutTypes = {
+    sut: AddAccount,
+    encrypterStub: Encrypter
+}
+
+const makeSut = (): SutTypes => {
+    const encrypterStub = new EncrypterStub();
+    const sut = new DbAddAccount(encrypterStub);
+
+    return {
+        sut,
+        encrypterStub
+    }
+}
+
 describe('DbAddAccount Usecase', () => {
     test('should call Encrypter with correct password', async () => {
-        const encrypterStub = new EncrypterStub();
-        const sut = new DbAddAccount(encrypterStub);
+
+        const {sut, encrypterStub} = makeSut()
 
         const encryptSpy = jest.spyOn(encrypterStub, 'encrypt');
 
