@@ -3,12 +3,8 @@ import { AddAccount, AddAccountModel } from "../../../domain/usecases/add-accoun
 import { Encrypter } from "../../protocols/encrypter";
 
 
-
-
 class DbAddAccount implements AddAccount {
-    constructor(private readonly encrypter: Encrypter){
-
-    }
+    constructor(private readonly encrypter: Encrypter){}
     async add(account: AddAccountModel): Promise<AccountModel> {
         const result = await this.encrypter.encrypt(account.password)
         return new Promise(async resolve => resolve(null))
@@ -55,4 +51,19 @@ describe('DbAddAccount Usecase', () => {
         expect(encryptSpy).toHaveBeenCalledWith("any_password")
     })
 
+    test('should throw if encrypter throws', async () => {
+
+        const {sut, encrypterStub} = makeSut()
+
+        jest.spyOn(encrypterStub, 'encrypt').mockReturnValueOnce(new Promise((resolve, reject) => reject(new Error())))
+
+        const accountData = {
+            name: "any_email", 
+            email: "any_email@mail.com", 
+            password: "any_password"
+        }
+        const accountPromised = sut.add(accountData)
+
+        await expect(accountPromised).rejects.toThrow()
+    })
 })
